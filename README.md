@@ -1,1 +1,1 @@
-# Sony-Spresense-POS-For-Blind
+# Sony-Spresense-POS-Terminal-For-Visually-Challenged
