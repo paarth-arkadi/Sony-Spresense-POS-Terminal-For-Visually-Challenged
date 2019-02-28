@@ -6,8 +6,8 @@ SDClass theSD;  // Instance of the class SDClass
 AudioClass *theAudio; // Instance of the class AudioClass
 File myFile; // Instance of the class File
 
-#define ldr1 A0  // ldr on the inner left side of the headphone
-#define ldr2 A1  // ldr on the inner right side of the headphone
+#define ldr1 14  // ldr on the inner left side of the headphone
+#define ldr2 15  // ldr on the inner right side of the headphone
 #define Password_Length 5  // Define the password length + the null character
 
 bool ErrEnd = false;
@@ -54,44 +54,372 @@ void setup(){
 
 void loop()
 {
-    //Serial.println("Start of the loop"); // Uncomment this line for testing
+    /* Setup the audio player */
+    theAudio = AudioClass::getInstance();
+    theAudio->begin(audio_attention_cb);
+    puts("initialization Audio Library");
+    theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
+    theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
+    err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/spif/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO); 
     bool check_headphone = ldr_detect(500); // Check headphone stores the value whether headphones are put on or not
     while(check_headphone){
-        //Serial.println("Headphones are put on hence the function is working"); // Uncomment this line for testing
         /* The entire process runs under this while loop*/
-        play_audio("headph.mp3",40000); // Plays "headphones are put on perfectly do not remove untill the transaction is over"
-        /*** Add "center.mp3" and "brail.mp3" or integrate them into headph.mp3*/
+
+        /*Add "Headphones are put on properly. The square shaped numpad is placed on the center of the instrument. It has braille stickers on it."*/
+        //Serial.println("Headphones are put on hence the function is working"); // Uncomment this line for testing
+        if (err != AUDIOLIB_ECODE_OK){
+            printf("Player0 initialize error\n");
+        }
+        myFile = theSD.open("headph.mp3"); // Takes the file name as the function parameter
+        if (!myFile){
+            printf("File open error\n");
+        }
+        printf("Open! %d\n",myFile);
+        err = theAudio->writeFrames(AudioClass::Player0, myFile);
+        if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+            printf("File Read Error! =%d\n",err);
+            myFile.close();
+        }
+        puts("Play!");
+        theAudio->setVolume(-160);
+        theAudio->startPlayer(AudioClass::Player0);
+        while(1){
+            puts("loop!!");
+            int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+            if (err == AUDIOLIB_ECODE_FILEEND){
+                printf("Main player File End!\n");
+                break;
+            }
+            if (err){
+                printf("Main player error code: %d\n", err);
+                sleep(1);
+                theAudio->stopPlayer(AudioClass::Player0);
+                myFile.close();
+                break; // Break the while loop  
+            }
+            if (ErrEnd){
+                printf("Error End\n");
+                sleep(1);
+                theAudio->stopPlayer(AudioClass::Player0);
+                myFile.close();
+                break; // Break the while loop
+            }
+            usleep(40000); 
+        }
+
         while(val!=1){
             delay(3000); // This wait is added so that there is a pause before playing the mp3 again
+
             /*** Add "press.mp3" or "Press hash '#' to continue or press asterisk to go back"*/ 
+            if (err != AUDIOLIB_ECODE_OK){
+                printf("Player0 initialize error\n");
+            }
+            myFile = theSD.open("press.mp3"); // Takes the file name as the function parameter
+            if (!myFile){
+                printf("File open error\n");
+            }
+            printf("Open! %d\n",myFile);
+            err = theAudio->writeFrames(AudioClass::Player0, myFile);
+            if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                printf("File Read Error! =%d\n",err);
+                myFile.close();
+            }
+            puts("Play!");
+            theAudio->setVolume(-160);
+            theAudio->startPlayer(AudioClass::Player0);
+            while(1){
+                puts("loop!!");
+                int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                if (err == AUDIOLIB_ECODE_FILEEND){
+                    printf("Main player File End!\n");
+                    break;
+                }
+                if (err){
+                    printf("Main player error code: %d\n", err);
+                    sleep(1);
+                    theAudio->stopPlayer(AudioClass::Player0);
+                    myFile.close();
+                    break; // Break the while loop  
+                }
+                if (ErrEnd){
+                    printf("Error End\n");
+                    sleep(1);
+                    theAudio->stopPlayer(AudioClass::Player0);
+                    myFile.close();
+                    break; // Break the while loop
+                }
+                usleep(40000); 
+            }
+
             //Serial.println("Press # to continue or press * to go back"); // Uncomment this line for testing
             val = numpad(); 
             if(val==1){
                 val = 0;
                 /*** Continue with the next process */
+
                 /*** Add "do you want to make a payemnt of xxxx dollars" */
+                if (err != AUDIOLIB_ECODE_OK){
+                    printf("Player0 initialize error\n");
+                }
+                myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                if (!myFile){
+                    printf("File open error\n");
+                }
+                printf("Open! %d\n",myFile);
+                err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                    printf("File Read Error! =%d\n",err);
+                    myFile.close();
+                }
+                puts("Play!");
+                theAudio->setVolume(-160);
+                theAudio->startPlayer(AudioClass::Player0);
+                while(1){
+                    puts("loop!!");
+                    int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                    if (err == AUDIOLIB_ECODE_FILEEND){
+                        printf("Main player File End!\n");
+                        break;
+                    }
+                    if (err){
+                        printf("Main player error code: %d\n", err);
+                        sleep(1);
+                        theAudio->stopPlayer(AudioClass::Player0);
+                        myFile.close();
+                        break; // Break the while loop  
+                    }
+                    if (ErrEnd){
+                        printf("Error End\n");
+                        sleep(1);
+                        theAudio->stopPlayer(AudioClass::Player0);
+                        myFile.close();
+                        break; // Break the while loop
+                    }
+                    usleep(40000); 
+                }
+                
                 while(val!=1){
                     delay(3000); // This wait is added so that there is a pause before playing the mp3 again
+
                     /*** Add "press.mp3" or "Press hash '#' to continue or press asterisk to go back"*/ 
                     //Serial.println("Press # to continue or press * to go back"); // Uncomment this line for testing
+                    if (err != AUDIOLIB_ECODE_OK){
+                        printf("Player0 initialize error\n");
+                    }
+                    myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                    if (!myFile){
+                        printf("File open error\n");
+                    }
+                    printf("Open! %d\n",myFile);
+                    err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                    if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                        printf("File Read Error! =%d\n",err);
+                        myFile.close();
+                    }
+                    puts("Play!");
+                    theAudio->setVolume(-160);
+                    theAudio->startPlayer(AudioClass::Player0);
+                    while(1){
+                        puts("loop!!");
+                        int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                        if (err == AUDIOLIB_ECODE_FILEEND){
+                            printf("Main player File End!\n");
+                            break;
+                        }
+                        if (err){
+                            printf("Main player error code: %d\n", err);
+                            sleep(1);
+                            theAudio->stopPlayer(AudioClass::Player0);
+                            myFile.close();
+                            break; // Break the while loop  
+                        }
+                        if (ErrEnd){
+                            printf("Error End\n");
+                            sleep(1);
+                            theAudio->stopPlayer(AudioClass::Player0);
+                            myFile.close();
+                            break; // Break the while loop
+                        }
+                        usleep(40000); 
+                    }
                     val = numpad();
                     if(val==1){
                         val = 0;
                         /*** Continue the next process */
+
                         /*** Add "Enter your pin "*/
                         //Serial.println("Enter your pin"); // Uncomment this line for testing
+                        if (err != AUDIOLIB_ECODE_OK){
+                            printf("Player0 initialize error\n");
+                        }
+                        myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                        if (!myFile){
+                            printf("File open error\n");
+                        }
+                        printf("Open! %d\n",myFile);
+                        err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                        if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                            printf("File Read Error! =%d\n",err);
+                            myFile.close();
+                        }
+                        puts("Play!");
+                        theAudio->setVolume(-160);
+                        theAudio->startPlayer(AudioClass::Player0);
+                        while(1){
+                            puts("loop!!");
+                            int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                            if (err == AUDIOLIB_ECODE_FILEEND){
+                                printf("Main player File End!\n");
+                                break;
+                            }
+                            if (err){
+                                printf("Main player error code: %d\n", err);
+                                sleep(1);
+                                theAudio->stopPlayer(AudioClass::Player0);
+                                myFile.close();
+                                break; // Break the while loop  
+                            }
+                            if (ErrEnd){
+                                printf("Error End\n");
+                                sleep(1);
+                                theAudio->stopPlayer(AudioClass::Player0);
+                                myFile.close();
+                                break; // Break the while loop
+                            }
+                            usleep(40000); 
+                        }
                         check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
                         if(!check_headphone){
                             break; // Break the whole transaction process if headphones are not on
                         }
                         verified = check_pin();
                         if(verified){
+
                             /*** Add "your transaction is being processed" ****/
                             //Serial.println("Your transaction is being processed"); // Uncomment this line for testing
+                            if (err != AUDIOLIB_ECODE_OK){
+                                printf("Player0 initialize error\n");
+                            }
+                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            if (!myFile){
+                                printf("File open error\n");
+                            }
+                            printf("Open! %d\n",myFile);
+                            err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                            if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                                printf("File Read Error! =%d\n",err);
+                                myFile.close();
+                            }
+                            puts("Play!");
+                            theAudio->setVolume(-160);
+                            theAudio->startPlayer(AudioClass::Player0);
+                            while(1){
+                                puts("loop!!");
+                                int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                                if (err == AUDIOLIB_ECODE_FILEEND){
+                                    printf("Main player File End!\n");
+                                    break;
+                                }
+                                if (err){
+                                    printf("Main player error code: %d\n", err);
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop  
+                                }
+                                if (ErrEnd){
+                                    printf("Error End\n");
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop
+                                }
+                                usleep(40000); 
+                            }
                             amt_balance = amt_balance - payment_amt;
+
                             /*** Add "Add your transaction is completed Thank you" ***/
+                            if (err != AUDIOLIB_ECODE_OK){
+                                printf("Player0 initialize error\n");
+                            }
+                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            if (!myFile){
+                                printf("File open error\n");
+                            }
+                            printf("Open! %d\n",myFile);
+                            err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                            if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                                printf("File Read Error! =%d\n",err);
+                                myFile.close();
+                            }
+                            puts("Play!");
+                            theAudio->setVolume(-160);
+                            theAudio->startPlayer(AudioClass::Player0);
+                            while(1){
+                                puts("loop!!");
+                                int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                                if (err == AUDIOLIB_ECODE_FILEEND){
+                                    printf("Main player File End!\n");
+                                    break;
+                                }
+                                if (err){
+                                    printf("Main player error code: %d\n", err);
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop  
+                                }
+                                if (ErrEnd){
+                                    printf("Error End\n");
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop
+                                }
+                                usleep(40000); 
+                            }
+
                             //Serial.println("Your transaction is completed"); // Uncomment this line for testing
                             /*** Add "you may remove the headphones" */
+                            if (err != AUDIOLIB_ECODE_OK){
+                                printf("Player0 initialize error\n");
+                            }
+                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            if (!myFile){
+                                printf("File open error\n");
+                            }
+                            printf("Open! %d\n",myFile);
+                            err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                            if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
+                                printf("File Read Error! =%d\n",err);
+                                myFile.close();
+                            }
+                            puts("Play!");
+                            theAudio->setVolume(-160);
+                            theAudio->startPlayer(AudioClass::Player0);
+                            while(1){
+                                puts("loop!!");
+                                int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+                                if (err == AUDIOLIB_ECODE_FILEEND){
+                                    printf("Main player File End!\n");
+                                    break;
+                                }
+                                if (err){
+                                    printf("Main player error code: %d\n", err);
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop  
+                                }
+                                if (ErrEnd){
+                                    printf("Error End\n");
+                                    sleep(1);
+                                    theAudio->stopPlayer(AudioClass::Player0);
+                                    myFile.close();
+                                    break; // Break the while loop
+                                }
+                                usleep(40000); 
+                            }
                             while(1){  // Wait untill the user removes the headphones
                                 check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
                                 if(!check_headphone){
@@ -100,8 +428,7 @@ void loop()
                             }
                             break;
                         }
-                        else
-                        {
+                        else{
                             break; // Break the whole transaction process if the pin is not verified
                         }
                         
@@ -131,63 +458,6 @@ bool ldr_detect(int light_threshold){
     else{
         //Serial.println("The headphones are not put on by the user"); // Uncomment this line for testing
         return false;
-    }
-}
-
-/* This function is created for the ease of playing the audio file*/
-/* It takes the audio file name and the playtime as the parameters */
-void play_audio(String filename,int delay_time) // Generally delay time is 40000
-{  
-    /* Setup the audio player */
-    theAudio = AudioClass::getInstance();
-    theAudio->begin(audio_attention_cb);
-    puts("initialization Audio Library");
-    theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
-    theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
-    err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/spif/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
-    if (err != AUDIOLIB_ECODE_OK){
-        printf("Player0 initialize error\n");
-        exit(1);
-    }
-    myFile = theSD.open(filename); // Takes the file name as the function parameter
-    if (!myFile){
-        printf("File open error\n");
-        exit(1);
-    }
-    printf("Open! %d\n",myFile);
-    err = theAudio->writeFrames(AudioClass::Player0, myFile);
-    if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND)){
-        printf("File Read Error! =%d\n",err);
-        myFile.close();
-        exit(1);
-    }
-    puts("Play!");
-    theAudio->setVolume(-160);
-    theAudio->startPlayer(AudioClass::Player0);
-    while(1){
-        puts("loop!!");
-        int err = theAudio->writeFrames(AudioClass::Player0, myFile);
-        if (err == AUDIOLIB_ECODE_FILEEND){
-            printf("Main player File End!\n");
-            break;
-        }
-        if (err){
-            printf("Main player error code: %d\n", err);
-               sleep(1);
-            theAudio->stopPlayer(AudioClass::Player0);
-            myFile.close();
-            break; // Break the while loop
-            exit(1);  
-        }
-        if (ErrEnd){
-            printf("Error End\n");
-               sleep(1);
-            theAudio->stopPlayer(AudioClass::Player0);
-            myFile.close();
-            break; // Break the while loop
-            exit(1);  
-        }
-        usleep(40000); 
     }
 }
 
