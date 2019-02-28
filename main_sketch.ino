@@ -31,6 +31,7 @@ char hexaKeys[ROWS][COLS] = {
 /* In the real world it can be fetched from API or software the seller is using*/
 int pylen =4; // The length of the array in which the amount for payemnt is stored.
 int payment_amt = 100; // Amount to be paid by the user to complete his payment.
+int amt_balance = 1000; // Amount remaining in the account of user
 int val = 0; // This is used in the program to store the value of the numpad function
 bool verified = false; // Store the value here if the pin is verified
 
@@ -53,15 +54,17 @@ void setup(){
 
 void loop()
 {
+    //Serial.println("Start of the loop"); // Uncomment this line for testing
     bool check_headphone = ldr_detect(500); // Check headphone stores the value whether headphones are put on or not
     while(check_headphone){
-        //Serial.println("Headphones are put on hence the function is working") // Uncomment this line for testing
+        //Serial.println("Headphones are put on hence the function is working"); // Uncomment this line for testing
         /* The entire process runs under this while loop*/
-        play_sound("headph.mp3",40000) // Plays "headphones are put on perfectly do not remove untill the transaction is over"
+        play_audio("headph.mp3",40000); // Plays "headphones are put on perfectly do not remove untill the transaction is over"
         /*** Add "center.mp3" and "brail.mp3" or integrate them into headph.mp3*/
         while(val!=1){
             delay(3000); // This wait is added so that there is a pause before playing the mp3 again
             /*** Add "press.mp3" or "Press hash '#' to continue or press asterisk to go back"*/ 
+            //Serial.println("Press # to continue or press * to go back"); // Uncomment this line for testing
             val = numpad(); 
             if(val==1){
                 val = 0;
@@ -70,11 +73,13 @@ void loop()
                 while(val!=1){
                     delay(3000); // This wait is added so that there is a pause before playing the mp3 again
                     /*** Add "press.mp3" or "Press hash '#' to continue or press asterisk to go back"*/ 
+                    //Serial.println("Press # to continue or press * to go back"); // Uncomment this line for testing
                     val = numpad();
                     if(val==1){
                         val = 0;
                         /*** Continue the next process */
                         /*** Add "Enter your pin "*/
+                        //Serial.println("Enter your pin"); // Uncomment this line for testing
                         check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
                         if(!check_headphone){
                             break; // Break the whole transaction process if headphones are not on
@@ -82,8 +87,10 @@ void loop()
                         verified = check_pin();
                         if(verified){
                             /*** Add "your transaction is being processed" ****/
+                            //Serial.println("Your transaction is being processed"); // Uncomment this line for testing
                             amt_balance = amt_balance - payment_amt;
                             /*** Add "Add your transaction is completed Thank you" ***/
+                            //Serial.println("Your transaction is completed"); // Uncomment this line for testing
                             /*** Add "you may remove the headphones" */
                             while(1){  // Wait untill the user removes the headphones
                                 check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
@@ -106,7 +113,7 @@ void loop()
         
     }
     // ***Do not add any time consuming program here: It can cause delay in detection of headphones
-    //Serial.pirntln("Headphones are not put on but the function is working") // Uncomment this line for testing   
+    //Serial.println("Headphones are not put on but the function is working"); // Uncomment this line for testing   
 }
 
 bool ldr_detect(int light_threshold){  
@@ -115,6 +122,8 @@ bool ldr_detect(int light_threshold){
     /* This function is used to detect whether the headphone is put on or not */         
     int ldr1_val = analogRead(ldr1);
     int ldr2_val = analogRead(ldr2); 
+    //Serial.println("ldr1_val: "+ldr1_val); // Uncomment this line for testing
+    //Serial.println("ldr2_val: "+ldr2_val); // Uncomment this line for testing
     if(ldr1_val>=light_threshold && ldr2_val>= light_threshold){
         //Serial.println("The headphones are put on by the user"); // Uncomment this line for testing
         return true;
@@ -254,4 +263,12 @@ int numpad(){
         }
     }
     return key_return;
+}
+
+/* Clears the temp data stored in the array*/
+void clearData(){
+  while(data_count !=0){
+    Data[data_count--] = 0; 
+  }
+  return;
 }
