@@ -6,8 +6,7 @@ SDClass theSD;  // Instance of the class SDClass
 AudioClass *theAudio; // Instance of the class AudioClass
 File myFile; // Instance of the class File
 
-#define ldr1 14  // ldr on the inner left side of the headphone
-#define ldr2 15  // ldr on the inner right side of the headphone
+#define ldr1 A0 // ldr on the inner left side of the headphone
 #define Password_Length 5  // Define the password length + the null character
 
 bool ErrEnd = false;
@@ -48,8 +47,9 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 void setup(){
     Serial.begin(115200); // Here the baud rate is set to 115200. It can be varied.
     pinMode(ldr1,INPUT); // Declares ldr pins at input
-    pinMode(ldr2,INPUT);
     pinMode(LED0,OUTPUT);  // LED0 represents the led on the Spresense board
+    pinMode(13,OUTPUT);  // Gives the signal to arduino uno to check for rfid card
+    pinMode(12,INPUT);  // Receives the signal that the card is verified
 }
 
 void loop()
@@ -61,16 +61,27 @@ void loop()
     theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
     theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
     err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/spif/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO); 
-    bool check_headphone = ldr_detect(500); // Check headphone stores the value whether headphones are put on or not
+    bool check_headphone = ldr_detect(300); // Check headphone stores the value whether headphones are put on or not
     while(check_headphone){
         /* The entire process runs under this while loop*/
+        /***********CHECKS WHETHER VALID CARD IS DETECTED WITH ARDUINO*********************/
+        /*******The below code part can be replaced with actual code of rfid after sepresense supports c++11**/
+        while(1){
+            //Serial.println("Check whether card is valid");  // Uncomment this line for testing
+            //Serial.println(digitalRead(12));  // Uncomment this line for testing
+            if(digitalRead(12)){
+                break;
+            } 
+        }
+        //Serial.println("Check card program ended");    // Uncomment this line for testing
+        /***************************************************************************/
 
         /*Add "Headphones are put on properly. The square shaped numpad is placed on the center of the instrument. It has braille stickers on it."*/
         //Serial.println("Headphones are put on hence the function is working"); // Uncomment this line for testing
         if (err != AUDIOLIB_ECODE_OK){
             printf("Player0 initialize error\n");
         }
-        myFile = theSD.open("headph.mp3"); // Takes the file name as the function parameter
+        myFile = theSD.open("headph1.mp3"); // Takes the file name as the function parameter
         if (!myFile){
             printf("File open error\n");
         }
@@ -114,7 +125,7 @@ void loop()
             if (err != AUDIOLIB_ECODE_OK){
                 printf("Player0 initialize error\n");
             }
-            myFile = theSD.open("press.mp3"); // Takes the file name as the function parameter
+            myFile = theSD.open("press1.mp3"); // Takes the file name as the function parameter
             if (!myFile){
                 printf("File open error\n");
             }
@@ -161,7 +172,7 @@ void loop()
                 if (err != AUDIOLIB_ECODE_OK){
                     printf("Player0 initialize error\n");
                 }
-                myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                myFile = theSD.open("proceed1.mp3"); // Takes the file name as the function parameter
                 if (!myFile){
                     printf("File open error\n");
                 }
@@ -206,7 +217,7 @@ void loop()
                     if (err != AUDIOLIB_ECODE_OK){
                         printf("Player0 initialize error\n");
                     }
-                    myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                    myFile = theSD.open("press1.mp3"); // Takes the file name as the function parameter
                     if (!myFile){
                         printf("File open error\n");
                     }
@@ -252,7 +263,7 @@ void loop()
                         if (err != AUDIOLIB_ECODE_OK){
                             printf("Player0 initialize error\n");
                         }
-                        myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                        myFile = theSD.open("enter1.mp3"); // Takes the file name as the function parameter
                         if (!myFile){
                             printf("File open error\n");
                         }
@@ -288,7 +299,7 @@ void loop()
                             }
                             usleep(40000); 
                         }
-                        check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
+                        check_headphone = ldr_detect(300); // Take a precautionary check whther headphones are put on before entering the pin
                         if(!check_headphone){
                             break; // Break the whole transaction process if headphones are not on
                         }
@@ -300,7 +311,7 @@ void loop()
                             if (err != AUDIOLIB_ECODE_OK){
                                 printf("Player0 initialize error\n");
                             }
-                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            myFile = theSD.open("transp1.mp3"); // Takes the file name as the function parameter
                             if (!myFile){
                                 printf("File open error\n");
                             }
@@ -337,12 +348,13 @@ void loop()
                                 usleep(40000); 
                             }
                             amt_balance = amt_balance - payment_amt;
-
+                            Serial.println("The remaining balance amount is: ");
+                            Serial.println(amt_balance);
                             /*** Add "Add your transaction is completed Thank you" ***/
                             if (err != AUDIOLIB_ECODE_OK){
                                 printf("Player0 initialize error\n");
                             }
-                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            myFile = theSD.open("transcc1.mp3"); // Takes the file name as the function parameter
                             if (!myFile){
                                 printf("File open error\n");
                             }
@@ -380,11 +392,20 @@ void loop()
                             }
 
                             //Serial.println("Your transaction is completed"); // Uncomment this line for testing
-                            /*** Add "you may remove the headphones" */
+                            while(1){  // Wait untill the user removes the headphones
+                                check_headphone = ldr_detect(300); // Take a precautionary check whther headphones are put on before entering the pin
+                                if(!check_headphone){
+                                    break; // Break the whole transaction process if headphones are not on
+                                }
+                            }
+                            break;
+                        }
+                        else{
+                            /*** Add "The pin you entered is incorrect" ***/
                             if (err != AUDIOLIB_ECODE_OK){
                                 printf("Player0 initialize error\n");
                             }
-                            myFile = theSD.open("center7.mp3"); // Takes the file name as the function parameter
+                            myFile = theSD.open("entern1.mp3"); // Takes the file name as the function parameter
                             if (!myFile){
                                 printf("File open error\n");
                             }
@@ -420,15 +441,6 @@ void loop()
                                 }
                                 usleep(40000); 
                             }
-                            while(1){  // Wait untill the user removes the headphones
-                                check_headphone = ldr_detect(500); // Take a precautionary check whther headphones are put on before entering the pin
-                                if(!check_headphone){
-                                    break; // Break the whole transaction process if headphones are not on
-                                }
-                            }
-                            break;
-                        }
-                        else{
                             break; // Break the whole transaction process if the pin is not verified
                         }
                         
@@ -445,13 +457,11 @@ void loop()
 
 bool ldr_detect(int light_threshold){  
     //Pass the value of light_threshold which it should detect that the headphones are put on (0-1023). 
-    //Generally the value is 500
+    //Generally the value is 300
     /* This function is used to detect whether the headphone is put on or not */         
     int ldr1_val = analogRead(ldr1);
-    int ldr2_val = analogRead(ldr2); 
     //Serial.println("ldr1_val: "+ldr1_val); // Uncomment this line for testing
-    //Serial.println("ldr2_val: "+ldr2_val); // Uncomment this line for testing
-    if(ldr1_val>=light_threshold && ldr2_val>= light_threshold){
+    if(ldr1_val<=light_threshold){
         //Serial.println("The headphones are put on by the user"); // Uncomment this line for testing
         return true;
     }
