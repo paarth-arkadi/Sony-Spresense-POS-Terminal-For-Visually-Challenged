@@ -1,2 +1,2 @@
 # Sony-Spresense-POS-Terminal-For-Visually-Challenged
-https://github.com/paarth-arkadi/Sony-Spresense-POS-Terminal-For-Visually-Challenged/issues/1#issue-416997391
+<img src="https://github.com/paarth-arkadi/Sony-Spresense-POS-Terminal-For-Visually-Challenged/issues/1#issue-416997391" width="500" height="500">
