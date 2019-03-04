@@ -1,0 +1,7 @@
+Do you want me to repeat the previous message. If yes ? then press * or press # to go back      press.mp3
+please enter your pin     enter.mp3
+your transaction in being processed           transcp.mp3
+your transaction is completed. Thank you. Please place your headphones back on the payment terminal           transcc.mp3
+your transaction is cancelled    transcn.mp3
+Your pin is incorrect        entern.mp3
+
